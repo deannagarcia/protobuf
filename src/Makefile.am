@@ -189,7 +189,7 @@ nobase_include_HEADERS =                                         \
 lib_LTLIBRARIES = libprotobuf-lite.la libprotobuf.la libprotoc.la
 
 libprotobuf_lite_la_LIBADD = $(PTHREAD_LIBS) $(LIBATOMIC_LIBS)
-libprotobuf_lite_la_LDFLAGS = -release $(PROTOBUF_VERSION) -export-dynamic -no-undefined
+libprotobuf_lite_la_LDFLAGS = -release ${PROTOBUF_VERSION} -export-dynamic -no-undefined
 if HAVE_LD_VERSION_SCRIPT
 libprotobuf_lite_la_LDFLAGS += -Wl,--version-script=$(srcdir)/libprotobuf-lite.map
 EXTRA_libprotobuf_lite_la_DEPENDENCIES = libprotobuf-lite.map
