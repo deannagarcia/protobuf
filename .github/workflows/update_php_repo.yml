@@ -10,22 +10,10 @@ on:
       - phpAction
 
 jobs:
-  get-version:
-    name: Get PHP Version
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Parse Version
-        run: |
-          version=$( cat version.json | jq '.main.languages.php' )
-          echo "VERSION=$version" >> $GITHUB_ENV
-      - uses: hmarr/debug-action@v2 
-
   update-repo:
     name: Update PHP Repo
     runs-on: ubuntu-latest
     steps:
-      - uses: hmarr/debug-action@v2
       - name: Checkout protobuf-php
         uses: actions/checkout@v3
         with:
@@ -39,6 +27,11 @@ jobs:
         run: |
           git config user.name "Protobuf Team Bot"
           git config user.email "protobuf-team-bot@google.com"
+      - name: Get PHP Version
+        run: |
+          version=$( cat protobuf/version.json | jq '.main.languages.php' )
+          echo "VERSION=$version" >> $GITHUB_ENV
+      - uses: hmarr/debug-action@v2
       - name: Copy files
         run: |
           rm -rf src
