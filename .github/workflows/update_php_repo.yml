@@ -30,7 +30,7 @@ jobs:
       - name: Get PHP Version
         run: |
           unformatted_version=$( cat protobuf/version.json | jq '.main.languages.php' )
-          version=${unformatted_version/-rc/RC}
+          version=${fromJson(unformatted_version)/-rc/RC}
           echo "VERSION=$version" >> $GITHUB_ENV
       - uses: hmarr/debug-action@v2
       - name: Copy files
@@ -43,5 +43,5 @@ jobs:
         run: |
           git add .
           git commit -m "$VERSION sync"
-          git push --force origin master
           git tag -a v$VERSION -m "Tag release v$VERSION"
+          git push --force origin master
