@@ -42,6 +42,7 @@ jobs:
           rm -rf src
           cp -r protobuf/php/src .
           cp protobuf/php/composer.json.dist composer.json
+          rm -rf protobuf
       - name: Push Changes
         run: |
           git add .
