@@ -24,6 +24,7 @@ jobs:
     name: Update PHP Repo
     runs-on: ubuntu-latest
     steps:
+      - uses: hmarr/debug-action@v2
       - name: Checkout protobuf-php
         uses: actions/checkout@v3
         with:
