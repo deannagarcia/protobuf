@@ -19,7 +19,6 @@ jobs:
         with:
           repository: deannagarcia/protobuf-php
           token: ${{ secrets.BOT_ACCESS_TOKEN }}
-          ref: test
       - name: Clone protobuf
         uses: actions/checkout@v3
         with:
@@ -30,7 +29,8 @@ jobs:
           git config user.email "protobuf-team-bot@google.com"
       - name: Get PHP Version
         run: |
-          version=$( cat protobuf/version.json | jq '.main.languages.php' )
+          unformatted_version=$( cat protobuf/version.json | jq '.main.languages.php' )
+          version=${unformatted_version/-rc/RC}
           echo "VERSION=$version" >> $GITHUB_ENV
       - uses: hmarr/debug-action@v2
       - name: Copy files
@@ -44,4 +44,4 @@ jobs:
           git add .
           git commit -m "$VERSION sync"
           git push --force origin master
-          git tag -a v$VERSION -m "Tag release $VERSION"
+          git tag -a v$VERSION -m "Tag release v$VERSION"
