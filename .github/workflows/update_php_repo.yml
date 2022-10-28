@@ -19,6 +19,7 @@ jobs:
         run: |
           version=$( cat version.json | jq '.main.languages.php' )
           echo "VERSION=$version" >> $GITHUB_ENV
+      - uses: hmarr/debug-action@v2 
 
   update-repo:
     name: Update PHP Repo
