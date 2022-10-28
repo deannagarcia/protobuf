@@ -41,4 +41,6 @@ jobs:
       - name: Push Changes
         run: |
           git add .
-          git commit -m "$VERSION"
+          git commit -m "$VERSION sync"
+          git push origin test
+
