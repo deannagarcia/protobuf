@@ -30,7 +30,7 @@ jobs:
       - name: Get PHP Version
         run: |
           unformatted_version=$( cat protobuf/version.json | jq '.main.languages.php' )
-          version=${unformatted_version/-rc/RC}
+          version=${${unformatted_version//"}/-rc/RC}
           version_tag=v$version
           echo "VERSION=$version" >> $GITHUB_ENV
           echo "VERSION_TAG=$version_tag" >> $GITHUB_ENV
