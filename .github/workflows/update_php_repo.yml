@@ -30,7 +30,7 @@ jobs:
       - name: Get PHP Version
         run: |
           unformatted_version=$( cat protobuf/version.json | jq '.main.languages.php' )
-          version=${fromJson(unformatted_version)/-rc/RC}
+          version=${ fromJson(unformatted_version)/-rc/RC }
           echo "VERSION=$version" >> $GITHUB_ENV
       - uses: hmarr/debug-action@v2
       - name: Copy files
