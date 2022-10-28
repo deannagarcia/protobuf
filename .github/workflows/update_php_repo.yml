@@ -1,0 +1,45 @@
+name: Update protobuf-php Repo
+
+on:
+  push:
+    tags:
+      - v[0-9]+.[0-9]+
+    paths:
+      - '.github/workflows/**'
+
+jobs:
+  get-version:
+    name: Get PHP Version
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Parse Version
+        run: |
+          version=$( cat version.json | jq '.main.languages.php' )
+          echo "VERSION=$version" >> "$GITHUB_ENV"
+  update-repo:
+    name: Update PHP Repo
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout protobuf-php
+        uses: actions/checkout@v3
+        with:
+          repository: protocolbuffers/protobuf-php
+          token: ${{ secrets.BOT_ACCESS_TOKEN }}
+      - name: Clone protobuf
+        uses: actions/checkout@v3
+        with:
+          path: protobuf
+     - name: Configure Git Bot
+       run: |
+          git config user.name "Protobuf Team Bot"
+          git config user.email "protobuf-team-bot@google.com"
+     - name: Copy files
+       run: |
+          rm -rf src
+          cp -r protobuf/php/src .
+          cp protobuf/php/composer.json.dist composer.json
+     - name: Push Changes
+       run: |
+         git add .
+         git commit -m "$VERSION"
