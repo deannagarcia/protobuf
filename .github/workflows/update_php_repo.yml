@@ -16,7 +16,8 @@ jobs:
       - name: Parse Version
         run: |
           version=$( cat version.json | jq '.main.languages.php' )
-          echo "VERSION=$version" >> "$GITHUB_ENV"
+          echo "VERSION=$version" >> $GITHUB_ENV
+
   update-repo:
     name: Update PHP Repo
     runs-on: ubuntu-latest
