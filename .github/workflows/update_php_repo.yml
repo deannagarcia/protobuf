@@ -31,16 +31,16 @@ jobs:
         uses: actions/checkout@v3
         with:
           path: protobuf
-     - name: Configure Git Bot
-       run: |
+      - name: Configure Git Bot
+        run: |
           git config user.name "Protobuf Team Bot"
           git config user.email "protobuf-team-bot@google.com"
-     - name: Copy files
-       run: |
+      - name: Copy files
+        run: |
           rm -rf src
           cp -r protobuf/php/src .
           cp protobuf/php/composer.json.dist composer.json
-     - name: Push Changes
-       run: |
-         git add .
-         git commit -m "$VERSION"
+      - name: Push Changes
+        run: |
+          git add .
+          git commit -m "$VERSION"
