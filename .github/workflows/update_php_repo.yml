@@ -19,6 +19,7 @@ jobs:
         with:
           repository: protocolbuffers/protobuf-php
           token: ${{ secrets.BOT_ACCESS_TOKEN }}
+          ref: test
       - name: Clone protobuf
         uses: actions/checkout@v3
         with:
