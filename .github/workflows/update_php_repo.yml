@@ -31,3 +31,7 @@ jobs:
           echo "VERSION_TAG=$version_tag"
           echo "${{ env.version }}"
           echo "${{ env.action_state }}"
+      - name: Use env variable
+        run: |
+          echo ${{ env.version }}
+          echo ${{ env.action_state }}
