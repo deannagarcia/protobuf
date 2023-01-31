@@ -33,5 +33,5 @@ jobs:
           echo "${{ env.action_state }}"
       - name: Use env variable
         run: |
-          echo ${{ env.version }}
+          echo "${{ env.version }}"
           echo ${{ env.action_state }}
