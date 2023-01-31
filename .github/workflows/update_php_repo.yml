@@ -28,4 +28,4 @@ jobs:
           echo "UNFORMATTED_VERSION=$unformatted_version"
           echo "VERSION=$version"
           echo "VERSION_TAG=$version_tag"
-          echo "$VERSION"
+          echo "${{ env.VERSION }}"
