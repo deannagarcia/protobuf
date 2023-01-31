@@ -23,9 +23,11 @@ jobs:
           unformatted_version=$( cat protobuf/version.json | jq -r '.main.languages.php' )
           version=${unformatted_version/-rc/RC}
           version_tag=v$version
+          echo "action_state=yellow" >> $GITHUB_ENV
           echo "version=$version" >> $GITHUB_ENV
           echo "VERSION_TAG=$version_tag" >> $GITHUB_ENV
           echo "UNFORMATTED_VERSION=$unformatted_version"
           echo "VERSION=$version"
           echo "VERSION_TAG=$version_tag"
           echo "${{ env.version }}"
+          echo "${{ env.action_state }}"
