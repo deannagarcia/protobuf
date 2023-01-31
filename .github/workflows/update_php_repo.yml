@@ -11,6 +11,13 @@ permissions:
 
 jobs:
   update-repo:
+    name: Update PHP Repo
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone protobuf
+        uses: actions/checkout@v3
+        with:
+          path: protobuf
       - name: Get PHP Version
         run: |
           unformatted_version=$( cat protobuf/version.json | jq -r '.main.languages.php' )
