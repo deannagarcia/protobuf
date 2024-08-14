@@ -8,6 +8,7 @@ bzl_library(
     name = "defaults",
     srcs = ["defaults.bzl"],
     visibility = ["//visibility:public"],
+    deps = ["//bazel/common:proto_info_bzl"],
 )
 
 # Aggregate all the features owned by the Protobuf repo.
@@ -87,18 +88,6 @@ cc_library(
     ],
 )
 
-cc_proto_library(
-    name = "cpp_features_cc_proto",
-    testonly = True,
-    deps = ["//src/google/protobuf:cpp_features_proto"],
-)
-
-cc_proto_library(
-    name = "java_features_cc_proto",
-    testonly = True,
-    deps = ["//java/core:java_features_proto"],
-)
-
 cc_test(
     name = "defaults_test",
     srcs = ["defaults_test.cc"],
@@ -109,11 +98,11 @@ cc_test(
         ":test_defaults_future",
     ],
     deps = [
-        ":cpp_features_cc_proto",
         ":defaults_test_embedded",
-        ":java_features_cc_proto",
         "//:protobuf",
+        "//java/core:java_features_cc_proto",
         "//src/google/protobuf",
+        "//src/google/protobuf:cpp_features_cc_proto",
         "//src/google/protobuf:port",
         "//src/google/protobuf:protobuf_lite",
         "//src/google/protobuf:test_textproto",

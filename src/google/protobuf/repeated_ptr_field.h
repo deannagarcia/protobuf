@@ -32,6 +32,7 @@
 #include <utility>
 
 #include "absl/base/attributes.h"
+#include "absl/base/prefetch.h"
 #include "absl/log/absl_check.h"
 #include "absl/meta/type_traits.h"
 #include "google/protobuf/arena.h"
@@ -575,6 +576,7 @@ class PROTOBUF_EXPORT RepeatedPtrFieldBase {
   // subclass.
   friend class google::protobuf::Reflection;
   friend class internal::SwapFieldHelper;
+  friend class LazyRepeatedPtrField;
 
   // Concrete Arena enabled copy function used to copy messages instances.
   // This follows the `Arena::CopyConstruct` signature so that the compiler
@@ -769,6 +771,42 @@ template <>
 void RepeatedPtrFieldBase::MergeFrom<std::string>(
     const RepeatedPtrFieldBase& from);
 
+
+template <typename F>
+void* RepeatedPtrFieldBase::AddInternal(F factory) {
+  Arena* const arena = GetArena();
+  if (tagged_rep_or_elem_ == nullptr) {
+    ExchangeCurrentSize(1);
+    tagged_rep_or_elem_ = factory(arena);
+    return tagged_rep_or_elem_;
+  }
+  absl::PrefetchToLocalCache(tagged_rep_or_elem_);
+  if (using_sso()) {
+    if (current_size_ == 0) {
+      ExchangeCurrentSize(1);
+      return tagged_rep_or_elem_;
+    }
+    void*& result = *InternalExtend(1);
+    result = factory(arena);
+    Rep* r = rep();
+    r->allocated_size = 2;
+    ExchangeCurrentSize(2);
+    return result;
+  }
+  Rep* r = rep();
+  if (PROTOBUF_PREDICT_FALSE(SizeAtCapacity())) {
+    InternalExtend(1);
+    r = rep();
+  } else {
+    if (current_size_ != r->allocated_size) {
+      return r->elements[ExchangeCurrentSize(current_size_ + 1)];
+    }
+  }
+  ++r->allocated_size;
+  void*& result = r->elements[ExchangeCurrentSize(current_size_ + 1)];
+  result = factory(arena);
+  return result;
+}
 
 PROTOBUF_EXPORT void InternalOutOfLineDeleteMessageLite(MessageLite* message);
 
@@ -1007,7 +1045,12 @@ class RepeatedPtrField final : private internal::RepeatedPtrFieldBase {
   void DeleteSubrange(int start, int num);
 
   ABSL_ATTRIBUTE_REINITIALIZES void Clear();
+
+  // Appends the elements from `other` after this instance.
+  // The end result length will be `other.size() + this->size()`.
   void MergeFrom(const RepeatedPtrField& other);
+
+  // Replaces the contents with a copy of the elements from `other`.
   ABSL_ATTRIBUTE_REINITIALIZES void CopyFrom(const RepeatedPtrField& other);
 
   // Replaces the contents with RepeatedPtrField(begin, end).

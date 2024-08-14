@@ -8,7 +8,11 @@
 //! Tests covering accessors for singular bool, int32, int64, and bytes fields.
 
 use googletest::prelude::*;
-use protobuf::Optional;
+use protobuf::{Optional, ProtoBytes, ProtoStr, ProtoString};
+use std::borrow::Cow;
+use std::ffi::OsString;
+use std::rc::Rc;
+use std::sync::Arc;
 use unittest_rust_proto::{test_all_types, TestAllTypes};
 
 #[test]
@@ -416,6 +420,48 @@ fn test_optional_bytes_accessors() {
 }
 
 #[test]
+fn test_into_proxied_for_bytes() {
+    let mut msg = TestAllTypes::new();
+
+    // &[u8]
+    let bytes: &[u8] = b"first";
+    msg.set_optional_bytes(bytes);
+    assert_that!(msg.optional_bytes(), eq(bytes));
+
+    // &[u8; N]
+    msg.set_optional_bytes(b"second");
+    assert_that!(msg.optional_bytes(), eq(b"second"));
+
+    // Vec<u8>
+    msg.set_optional_bytes(Vec::from(b"third"));
+    assert_that!(msg.optional_bytes(), eq(b"third"));
+
+    // ProtoBytes
+    msg.set_optional_bytes(ProtoBytes::from(b"fourth"));
+    assert_that!(msg.optional_bytes(), eq(b"fourth"));
+
+    // Box<[u8]>
+    msg.set_optional_bytes(Box::from(b"fifth".to_owned()));
+    assert_that!(msg.optional_bytes(), eq(b"fifth"));
+
+    // Cow<[u8]>
+    msg.set_optional_bytes(Cow::from(b"sixth"));
+    assert_that!(msg.optional_bytes(), eq(b"sixth"));
+
+    // Rc<[u8]>
+    msg.set_optional_bytes(Rc::from(b"seventh".to_owned()));
+    assert_that!(msg.optional_bytes(), eq(b"seventh"));
+
+    // Arc<[u8]>
+    msg.set_optional_bytes(Arc::from(b"eighth".to_owned()));
+    assert_that!(msg.optional_bytes(), eq(b"eighth"));
+
+    // &Vec<u8>
+    msg.set_optional_bytes(&Vec::from(b"ninth"));
+    assert_that!(msg.optional_bytes(), eq(b"ninth"));
+}
+
+#[test]
 fn test_nonempty_default_bytes_accessors() {
     let mut msg = TestAllTypes::new();
     assert_that!(msg.default_bytes(), eq(b"world"));
@@ -471,6 +517,55 @@ fn test_optional_string_accessors() {
 }
 
 #[test]
+fn test_into_proxied_for_string() {
+    let mut msg = TestAllTypes::new();
+
+    // &str
+    msg.set_optional_string("first");
+    assert_that!(msg.optional_string(), eq("first"));
+
+    // String
+    msg.set_optional_string("second".to_string());
+    assert_that!(msg.optional_string(), eq("second"));
+
+    // ProtoStr
+    msg.set_optional_string(ProtoStr::from_str("third"));
+    assert_that!(msg.optional_string(), eq("third"));
+
+    // ProtoString
+    msg.set_optional_string(ProtoString::from("fourth"));
+    assert_that!(msg.optional_string(), eq("fourth"));
+
+    // OsString
+    msg.set_optional_string(OsString::from("fifth"));
+    assert_that!(msg.optional_string(), eq("fifth"));
+
+    // OsStr
+    msg.set_optional_string(OsString::from("sixth").as_os_str());
+    assert_that!(msg.optional_string(), eq("sixth"));
+
+    // Box<str>
+    msg.set_optional_string(Box::from("seventh"));
+    assert_that!(msg.optional_string(), eq("seventh"));
+
+    // Cow<str>
+    msg.set_optional_string(Cow::from("eighth"));
+    assert_that!(msg.optional_string(), eq("eighth"));
+
+    // Rc<str>
+    msg.set_optional_string(Rc::from("ninth"));
+    assert_that!(msg.optional_string(), eq("ninth"));
+
+    // Arc<str>
+    msg.set_optional_string(Arc::from("tenth"));
+    assert_that!(msg.optional_string(), eq("tenth"));
+
+    // &String
+    msg.set_optional_string(&"eleventh".to_string());
+    assert_that!(msg.optional_string(), eq("eleventh"));
+}
+
+#[test]
 fn test_nonempty_default_string_accessors() {
     let mut msg = TestAllTypes::new();
     assert_that!(msg.default_string(), eq("hello"));
@@ -514,10 +609,8 @@ fn test_singular_msg_field() {
 #[test]
 fn test_message_opt() {
     let msg = TestAllTypes::new();
-    let opt: Optional<
-        unittest_rust_proto::test_all_types::NestedMessageView<'_>,
-        unittest_rust_proto::test_all_types::NestedMessageView<'_>,
-    > = msg.optional_nested_message_opt();
+    let opt: Optional<unittest_rust_proto::test_all_types::NestedMessageView<'_>> =
+        msg.optional_nested_message_opt();
     assert_that!(opt.is_set(), eq(false));
     assert_that!(opt.into_inner().bb(), eq(0));
 }

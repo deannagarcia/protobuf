@@ -648,7 +648,7 @@ static void _upb_FieldDef_Create(upb_DefBuilder* ctx, const char* prefix,
                            f->full_name);
     }
 
-    if (oneof_index >= upb_MessageDef_OneofCount(m)) {
+    if (oneof_index < 0 || oneof_index >= upb_MessageDef_OneofCount(m)) {
       _upb_DefBuilder_Errf(ctx, "oneof_index out of range (%s)", f->full_name);
     }
 
@@ -982,9 +982,9 @@ void _upb_FieldDef_BuildMiniTableExtension(upb_DefBuilder* ctx,
       const upb_MiniTableEnum* subenum = _upb_EnumDef_MiniTable(f->sub.enumdef);
       sub = upb_MiniTableSub_FromEnum(subenum);
     }
-    bool ok2 = upb_MiniTableExtension_Init(desc.data, desc.size, mut_ext,
-                                           upb_MessageDef_MiniTable(f->msgdef),
-                                           sub, ctx->status);
+    bool ok2 = _upb_MiniTableExtension_Init(desc.data, desc.size, mut_ext,
+                                            upb_MessageDef_MiniTable(f->msgdef),
+                                            sub, ctx->platform, ctx->status);
     if (!ok2) _upb_DefBuilder_Errf(ctx, "Could not build extension mini table");
   }
 

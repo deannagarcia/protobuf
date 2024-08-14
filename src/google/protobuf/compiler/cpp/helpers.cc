@@ -215,7 +215,7 @@ internal::field_layout::TransformValidation GetLazyStyle(
 
 absl::flat_hash_map<absl::string_view, std::string> MessageVars(
     const Descriptor* desc) {
-  absl::string_view prefix = IsMapEntryMessage(desc) ? "" : "_impl_.";
+  absl::string_view prefix = "_impl_.";
   return {
       {"any_metadata", absl::StrCat(prefix, "_any_metadata_")},
       {"cached_size", absl::StrCat(prefix, "_cached_size_")},
@@ -332,9 +332,7 @@ bool CanInitializeByZeroing(const FieldDescriptor* field,
     case FieldDescriptor::CPPTYPE_BOOL:
       return field->default_value_bool() == false;
     case FieldDescriptor::CPPTYPE_MESSAGE:
-      // Non-repeated, non-lazy message fields are raw pointers initialized to
-      // null.
-      return !IsLazy(field, options, scc_analyzer);
+      return true;
     default:
       return false;
   }
@@ -446,7 +444,7 @@ std::string ResolveKeyword(absl::string_view name) {
 }
 
 std::string DotsToColons(absl::string_view name) {
-  std::vector<std::string> scope = absl::StrSplit(name, ".", absl::SkipEmpty());
+  std::vector<std::string> scope = absl::StrSplit(name, '.', absl::SkipEmpty());
   for (auto& word : scope) {
     word = ResolveKeyword(word);
   }
@@ -531,7 +529,7 @@ std::string SuperClassName(const Descriptor* descriptor,
 }
 
 std::string FieldName(const FieldDescriptor* field) {
-  std::string result = field->name();
+  std::string result = std::string(field->name());
   absl::AsciiStrToLower(&result);
   if (Keywords().count(result) > 0) {
     result.append("_");
@@ -540,8 +538,7 @@ std::string FieldName(const FieldDescriptor* field) {
 }
 
 std::string FieldMemberName(const FieldDescriptor* field, bool split) {
-  absl::string_view prefix =
-      IsMapEntryMessage(field->containing_type()) ? "" : "_impl_.";
+  absl::string_view prefix = "_impl_.";
   absl::string_view split_prefix = split ? "_split_->" : "";
   if (field->real_containing_oneof() == nullptr) {
     return absl::StrCat(prefix, split_prefix, FieldName(field), "_");
@@ -566,7 +563,7 @@ std::string QualifiedOneofCaseConstantName(const FieldDescriptor* field) {
 }
 
 std::string EnumValueName(const EnumValueDescriptor* enum_value) {
-  std::string result = enum_value->name();
+  std::string result = std::string(enum_value->name());
   if (Keywords().count(result) > 0) {
     result.append("_");
   }
@@ -905,7 +902,7 @@ std::string SafeFunctionName(const Descriptor* descriptor,
                              const FieldDescriptor* field,
                              absl::string_view prefix) {
   // Do not use FieldName() since it will escape keywords.
-  std::string name = field->name();
+  std::string name = std::string(field->name());
   absl::AsciiStrToLower(&name);
   std::string function_name = absl::StrCat(prefix, name);
   if (descriptor->FindFieldByName(function_name)) {
@@ -1665,6 +1662,8 @@ bool GetBootstrapBasename(const Options& options, absl::string_view basename,
            "third_party/protobuf/descriptor"},
           {"third_party/protobuf/cpp_features",
            "third_party/protobuf/cpp_features"},
+          {"third_party/java/protobuf/java_features",
+           "third_party/java/protobuf/java_features_bootstrap"},
           {"third_party/protobuf/compiler/plugin",
            "third_party/protobuf/compiler/plugin"},
           {"net/proto2/compiler/proto/profile",
@@ -1953,3 +1952,5 @@ bool NeedsPostLoopHandler(const Descriptor* descriptor,
 }  // namespace compiler
 }  // namespace protobuf
 }  // namespace google
+
+#include "google/protobuf/port_undef.inc"

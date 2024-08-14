@@ -364,11 +364,11 @@ void WriteMessage(upb::MessageDefPtr message, const DefPoolPair& pools,
       auto pair = subs.emplace(index, GetSub(field, false));
       ABSL_CHECK(pair.second);
       if (options.one_output_per_message && field.IsSubMessage() &&
-          IsCrossFile(field)) {
+          IsCrossFile(field) && !upb_MiniTableField_IsMap(f)) {
         if (seen.insert(pools.GetMiniTable64(field.message_type())).second) {
           output(
-              "__attribute__((weak)) const upb_MiniTable* $0 = "
-              "&UPB_PRIVATE(_kUpb_MiniTable_Empty);\n",
+              "__attribute__((weak)) const upb_MiniTable* $0 ="
+              " &UPB_PRIVATE(_kUpb_MiniTable_StaticallyTreeShaken);\n",
               MessagePtrName(field.message_type()));
         }
       }
@@ -571,7 +571,7 @@ void WriteMiniTableSourceIncludes(upb::FileDefPtr file, Output& output) {
 
   output(
       "extern const struct upb_MiniTable "
-      "UPB_PRIVATE(_kUpb_MiniTable_Empty);\n");
+      "UPB_PRIVATE(_kUpb_MiniTable_StaticallyTreeShaken);\n");
 }
 
 void WriteMiniTableSource(const DefPoolPair& pools, upb::FileDefPtr file,
